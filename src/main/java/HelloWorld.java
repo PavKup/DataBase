@@ -1,3 +1,5 @@
+import repository.ItemsRepository;
+
 import java.sql.Date;
 import java.util.Map;
 import java.util.Scanner;
@@ -20,6 +22,8 @@ public class HelloWorld {
                 System.out.println("Unknown command");
             }
         }
+
+      //  ItemsRepository itemsRepository = new ItemsRepository();
     }
 
     private static void handleCommand(Scanner sc, String command) {
