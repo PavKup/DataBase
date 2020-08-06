@@ -7,6 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="TestPasha" />
+        <module name="DataBase" />
+        <module name="Test.Pasha" />
       </profile>
     </annotationProcessing>
   </component>

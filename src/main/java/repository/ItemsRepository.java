@@ -1,27 +1,29 @@
 package repository;
 
-import Entity.Item;
+import entity.Item;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ItemsRepository {
-    private Map <String, Item> items;
-
-
+    private final Map<String, Item> items;
 
     public ItemsRepository() {
         this.items = new HashMap<>();
     }
 
-    public List<Item> findAll(){
-        List<Item> itemsList = new ArrayList<>(items.values());
-        return itemsList;
+    public List<Item> findAll() {
+        return new ArrayList<>(items.values());
     }
 
-    public void save(Item item){
+    public void save(Item item) {
         items.put(item.getId(), item);
+    }
+
+    public void remove(String id) {
+        items.remove(id);
+    }
+
+    public Item findOne(String id) {
+        return items.get(id);
     }
 }

@@ -1,94 +1,50 @@
+import entity.Item;
+import entity.Shipping;
+import entity.Town;
 import repository.ItemsRepository;
+import repository.ShippingsRepository;
+import repository.TownsRepository;
+import service.ItemsService;
+import service.ShippingsService;
+import service.TownsService;
 
-import java.sql.Date;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
 public class HelloWorld {
     public static void main(String[] args) {
-        DatabaseConnection.initializeDriver();
+        final ItemsRepository itemsRepository = new ItemsRepository();
+        final TownsRepository townsRepository = new TownsRepository();
+        final ShippingsRepository shippingsRepository = new ShippingsRepository();
+        final ItemsService itemsService = new ItemsService(itemsRepository);
+        final TownsService townsService = new TownsService(townsRepository);
+        final ShippingsService shippingsService = new ShippingsService(shippingsRepository, itemsService, townsService);
+        createAndFill(itemsService, townsService);
 
-        if (!DatabaseConnection.isDatabaseFilled()) {
-            createAndFill();
-        }
+        CommandHandler handler = new CommandHandler(itemsService, townsService, shippingsService);
 
-        for (;;) {
+        for (; ; ) {
             Scanner sc = new Scanner(System.in);
 
             try {
-                handleCommand(sc, sc.next());
+                handler.handle(sc);
             } catch (Throwable t) {
                 System.out.println("Unknown command");
             }
         }
-
-      //  ItemsRepository itemsRepository = new ItemsRepository();
     }
 
-    private static void handleCommand(Scanner sc, String command) {
-        System.out.println("Command: " + command);
-        switch (command) {
-            case "add_item":
-                String name = sc.next();
-                int quantity = sc.nextInt();
-
-                System.out.println(name + " " + quantity);
-                DatabaseConnection.insertItem(name, String.valueOf(quantity));
-                break;
-            case "add_town":
-                String townName = sc.next();
-                int distance = sc.nextInt();
-
-                System.out.println(townName + " " + distance);
-                DatabaseConnection.insertTown(townName, String.valueOf(distance));
-                break;
-            case "add_shipping":
-                int itemId = sc.nextInt();
-                int townId = sc.nextInt();
-                Date startDate = Date.valueOf(sc.next());
-                Date endDate;
-                if (sc.hasNext()) {
-                     endDate = Date.valueOf(sc.next());
-                } else {
-                    endDate = null;
-                }
-                DatabaseConnection.insertShipping(itemId, townId, startDate, endDate);
-                break;
-            case "delete_item":
-                break;
-            case "delete_town":
-                break;
-            case "delete_shipping":
-                break;
-            case "show_items":
-                DatabaseConnection.printItems();
-                break;
-            case "show_towns":
-                DatabaseConnection.printTowns();
-                break;
-            case "show_shippings":
-                DatabaseConnection.printShippings();
-                break;
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    private static void createAndFill() {
-        DatabaseConnection.createItems();
-        DatabaseConnection.createTowns();
-        DatabaseConnection.createShippings();
-
+    private static void createAndFill(ItemsService itemsService, TownsService townsService) {
         Set<Map.Entry<Object, Object>> items = SampleDataLoader.readFile("items.txt");
         Set<Map.Entry<Object, Object>> towns = SampleDataLoader.readFile("towns.txt");
 
         for (Map.Entry<Object, Object> entry : items) {
-            DatabaseConnection.insertItem((String) entry.getKey(), (String) entry.getValue());
+            itemsService.createItem( (String) entry.getKey(), (String) entry.getValue());
         }
 
         for (Map.Entry<Object, Object> entry : towns) {
-               DatabaseConnection.insertTown((String) entry.getKey(), (String) entry.getValue());
+            townsService.createTown( (String) entry.getKey(), (String) entry.getValue());
         }
     }
 }
